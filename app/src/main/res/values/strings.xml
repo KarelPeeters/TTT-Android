@@ -1,0 +1,17 @@
+<resources>
+    <string name="app_name">TTTAndroid</string>
+
+    <string name="disconnect">Disconect</string>
+
+    <string name="scan">Scan</string>
+    <string name="stop_scan">Stop Scanning</string>
+
+    <string name="count_not_enable_bt">Couldn\'t enable bluetooth</string>
+    <string name="not_connected">Not connected</string>
+    <string name="button">Button</string>
+    <string name="ping_pong_board">Ping pong board</string>
+    <string name="title_activity_derp">Derp</string>
+
+    <string name="title_tennis">Tennis</string>
+    <string name="title_raw">Raw</string>
+</resources>

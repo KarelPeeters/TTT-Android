@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="ttt.tttandroid.ControlActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.3"
+                android:onClick="disconnectClicked"
+                android:text="@string/disconnect" />
+
+            <TextView
+                android:id="@+id/connectionStatusText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_weight="0.6"
+                android:text="@string/not_connected" />
+
+            <ProgressBar
+                android:id="@+id/connecting_spinner"
+                style="?android:attr/progressBarStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.1" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/view_tennis"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <ImageView
+                android:id="@+id/table_image_view"
+                android:layout_width="match_parent"
+                android:layout_height="300dp"
+                android:contentDescription="@string/ping_pong_board"
+                android:src="@drawable/ic_ping_pong" />
+
+        </LinearLayout>
+
+        <TableLayout
+            android:id="@+id/view_raw"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:visibility="visible">
+
+            <TableRow>
+
+                <TextView
+                    android:text="Motors"
+                    android:textColor="@android:color/black"
+                    android:textStyle="bold" />
+            </TableRow>
+
+            <TableRow android:paddingTop="@dimen/slider_padding">
+
+                <TextView android:text="LM" />
+
+                <TextView
+                    android:id="@+id/lm_value"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="right"
+                    android:paddingLeft="10dp"
+                    android:text="   0"
+                    android:fontFamily="monospace"/>
+
+                <SeekBar
+                    android:id="@+id/lm_slider"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0.9"
+                    android:paddingLeft="10dp"
+                    android:max="255" />
+            </TableRow>
+
+            <TableRow android:paddingTop="@dimen/slider_padding">
+
+                <TextView android:text="RM" />
+
+                <TextView
+                    android:id="@+id/rm_value"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="right"
+                    android:paddingLeft="10dp"
+                    android:text="   0"
+                    android:fontFamily="monospace" />
+
+                <SeekBar
+                    android:id="@+id/rm_slider"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0.9"
+                    android:paddingLeft="10dp"
+                    android:max="255" />
+            </TableRow>
+
+            <TableRow android:paddingTop="@dimen/slider_padding">
+
+                <TextView android:text="Servo" />
+
+                <TextView
+                    android:id="@+id/servo_value"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="right"
+                    android:paddingLeft="10dp"
+                    android:text="   0"
+                    android:fontFamily="monospace"/>
+
+                <SeekBar
+                    android:id="@+id/servo_slider"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0.9"
+                    android:paddingLeft="10dp"
+                    android:max="170" />
+            </TableRow>
+
+            <TableRow android:paddingTop="@dimen/slider_padding">
+
+                <TextView
+                    android:text="Stepper"
+                    android:textColor="@android:color/black"
+                    android:textStyle="bold" />
+
+            </TableRow>
+
+            <TableRow android:paddingTop="@dimen/slider_padding">
+                <TextView android:text="Delay (µs)"/>
+
+                <TextView
+                    android:id="@+id/stepper_speed_value"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="right"
+                    android:paddingLeft="10dp"
+                    android:text="   0"
+                    android:fontFamily="monospace"/>
+
+                <SeekBar
+                    android:id="@+id/stepper_delay_slider"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0.9"
+                    android:paddingLeft="10dp"
+                    android:max="2000"
+                    android:progress="500"/>
+
+
+            </TableRow>
+
+            <TableRow android:paddingTop="@dimen/slider_padding">
+                <TextView android:text="Position"/>
+
+                <TextView
+                    android:id="@+id/stepper_pos_value"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="right"
+                    android:paddingLeft="10dp"
+                    android:text="   0"
+                    android:fontFamily="monospace"/>
+
+                <SeekBar
+                    android:id="@+id/stepper_pos_slider"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0.9"
+                    android:paddingLeft="10dp"
+                    android:max="600"
+                    android:progress="300"/>
+
+
+            </TableRow>
+
+        </TableLayout>
+
+        <EditText
+            android:id="@+id/editText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:inputType="textPersonName"
+            android:text="Name" />
+
+    </LinearLayout>
+
+    <android.support.design.widget.BottomNavigationView
+        android:id="@+id/navigation"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="0dp"
+        android:layout_marginStart="0dp"
+        android:background="?android:attr/windowBackground"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:menu="@menu/navigation" />
+</android.support.constraint.ConstraintLayout>
