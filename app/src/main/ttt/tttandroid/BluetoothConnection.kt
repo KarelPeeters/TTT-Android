@@ -9,22 +9,27 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.os.Parcelable
 import android.util.Log
+import android.widget.Toast
 import kotlinx.android.parcel.Parcelize
 import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
+import java.util.*
 import java.util.concurrent.BlockingQueue
 import java.util.concurrent.LinkedBlockingQueue
 
-typealias Receiver = (data: Int) -> Unit
+typealias Receiver = (data: IntArray) -> Unit
 
 @Parcelize
 data class NamedDevice(val name: String, val device: BluetoothDevice) : Parcelable
+
+val SERIAL_UUID = UUID.fromString("00001101-0000-1000-8000-00805f9b34fb")
 
 class BluetoothConnection(
         private val context: Context,
         private val namedDevice: NamedDevice,
         private val receiver: Receiver,
+        private val responseSize: Int,
         private val finishedCallBack: (failed: Boolean) -> Unit
 ) {
     val device = namedDevice.device
@@ -39,6 +44,7 @@ class BluetoothConnection(
     private lateinit var output: OutputStream
 
     private val writeQueue: BlockingQueue<Int> = LinkedBlockingQueue()
+    private val readQueue: Queue<Int> = LinkedList<Int>()
 
     private val broadCastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
@@ -60,7 +66,11 @@ class BluetoothConnection(
         }
     }
 
-    fun handleFail() {
+    fun handleFail(message: String? = null) {
+        if (message != null) {
+            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+        }
+
         finishedCallBack(true)
         destroy()
         initThread.failed()
@@ -108,8 +118,7 @@ class BluetoothConnection(
                 }
 
                 try {
-                    val uuid = device.uuids?.get(0)?.uuid ?: throw AssertionError("UUID not found")
-                    socket = device.createRfcommSocketToServiceRecord(uuid)
+                    socket = device.createRfcommSocketToServiceRecord(SERIAL_UUID)
                     socket.connect()
                 } catch (e: IOException) {
                     handleFail()
@@ -131,7 +140,11 @@ class BluetoothConnection(
         override fun run() {
             try {
                 while (running) {
-                    receiver(input.read())
+                    readQueue.add(input.read())
+                    if (readQueue.size >= responseSize) {
+                        val response = IntArray(responseSize) { readQueue.remove() }
+                        receiver(response)
+                    }
                 }
             } catch (e: InterruptedException) {
 

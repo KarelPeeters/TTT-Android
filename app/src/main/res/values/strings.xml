@@ -12,6 +12,9 @@
     <string name="ping_pong_board">Ping pong board</string>
     <string name="title_activity_derp">Derp</string>
 
+    <string name="connecting_to">Connecting to %1$s</string>
+    <string name="connected_to">Connected to %1$s</string>
+
     <string name="title_tennis">Tennis</string>
     <string name="title_raw">Raw</string>
 </resources>

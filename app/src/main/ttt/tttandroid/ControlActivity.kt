@@ -2,14 +2,12 @@ package ttt.tttandroid
 
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
-import android.text.Editable
-import android.text.TextWatcher
 import android.util.Log
 import android.view.View
 import android.widget.SeekBar
 import kotlinx.android.synthetic.main.activity_control.*
-import ttt.tttandroid.ControlActivity.Mode.RAW
-import ttt.tttandroid.ControlActivity.Mode.TENNIS
+import ttt.tttandroid.Mode.RAW
+import ttt.tttandroid.Mode.TENNIS
 
 data class State(
         var lm: Int,
@@ -31,6 +29,10 @@ data class State(
     }
 }
 
+private enum class Mode {
+    TENNIS, RAW
+}
+
 class ControlActivity : AppCompatActivity() {
     val state: State = State(0, 0, 0, 0, 0)
     lateinit var connection: BluetoothConnection
@@ -41,19 +43,17 @@ class ControlActivity : AppCompatActivity() {
 
         state.apply {
             lm = lm_slider.progress
-            rm = servo_slider.progress
+            rm = rm_slider.progress
             servo = servo_slider.progress
             stepperDelay = stepper_delay_slider.progress
             stepperPos = stepper_pos_slider.progress
         }
 
-
-        val listener = SeekBarListener()
-        lm_slider.setOnSeekBarChangeListener(listener)
-        rm_slider.setOnSeekBarChangeListener(listener)
-        servo_slider.setOnSeekBarChangeListener(listener)
-        stepper_delay_slider.setOnSeekBarChangeListener(listener)
-        stepper_pos_slider.setOnSeekBarChangeListener(listener)
+        lm_slider.setOnSeekBarChangeListener(seekBarListener)
+        rm_slider.setOnSeekBarChangeListener(seekBarListener)
+        servo_slider.setOnSeekBarChangeListener(seekBarListener)
+        stepper_delay_slider.setOnSeekBarChangeListener(seekBarListener)
+        stepper_pos_slider.setOnSeekBarChangeListener(seekBarListener)
 
         navigation.setOnNavigationItemSelectedListener { item ->
             when (item.itemId) {
@@ -72,24 +72,20 @@ class ControlActivity : AppCompatActivity() {
         changeMode(TENNIS)
     }
 
-    fun initConnection() {
+    private fun initConnection() {
         val device = intent.getParcelableExtra<NamedDevice>(Codes.BT_DEVICE_EXTRA)
-        connectionStatusText.text = "Connecting to ${device.name}"
+        connectionStatusText.text = getString(R.string.connecting_to, device.name)
         connecting_spinner.visibility = View.VISIBLE
-        connection = BluetoothConnection(this, device, ::onReceive) { failed ->
+        connection = BluetoothConnection(this, device, ::onReceive, responseSize) { failed ->
             if (failed) {
                 Log.e("ControlActivity", "failed")
                 finish()
             } else runOnUiThread {
-                connectionStatusText.text = "Connected to ${device.name}"
+                connectionStatusText.text = getString(R.string.connected_to, device.name)
                 connecting_spinner.visibility = View.INVISIBLE
                 onStateChanged()
             }
         }
-    }
-
-    enum class Mode {
-        TENNIS, RAW
     }
 
     private fun changeMode(mode: Mode) {
@@ -106,7 +102,9 @@ class ControlActivity : AppCompatActivity() {
         finish()
     }
 
-    fun onReceive(data: Int) {
+    val responseSize = 2
+
+    fun onReceive(data: IntArray) {
         Log.e("Receive", data.toString())
     }
 
@@ -131,7 +129,7 @@ class ControlActivity : AppCompatActivity() {
         stepper_pos_value.text = state.stepperPos.toString().leftPad(4)
     }
 
-    inner class SeekBarListener : SeekBar.OnSeekBarChangeListener {
+    private val seekBarListener = object : SeekBar.OnSeekBarChangeListener {
         override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
             when (seekBar) {
                 lm_slider -> state.lm = progress
@@ -146,8 +144,7 @@ class ControlActivity : AppCompatActivity() {
         override fun onStartTrackingTouch(seekBar: SeekBar?) {}
 
         override fun onStopTrackingTouch(seekBar: SeekBar?) {}
-
     }
-
-    private fun String.leftPad(length: Int) = if (this.length < length) " ".repeat(length - this.length) + this else this
 }
+
+private fun String.leftPad(length: Int) = if (this.length < length) " ".repeat(length - this.length) + this else this

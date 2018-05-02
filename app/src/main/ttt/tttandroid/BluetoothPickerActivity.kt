@@ -40,9 +40,9 @@ class BluetoothDeviceAdapter(context: Context) : ArrayAdapter<NamedDevice>(conte
 }
 
 class BluetoothPickerActivity : AppCompatActivity() {
-    var scanning = false
-    lateinit var btAdapter: BluetoothAdapter
-    lateinit var listAdapter: ArrayAdapter<NamedDevice>
+    private var scanning = false
+    private lateinit var btAdapter: BluetoothAdapter
+    private lateinit var listAdapter: ArrayAdapter<NamedDevice>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -114,7 +114,8 @@ class BluetoothPickerActivity : AppCompatActivity() {
             return
         }
 
-        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.ACCESS_COARSE_LOCATION), Codes.REQUEST_COARSE_LOC)
             return
         }
