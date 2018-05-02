@@ -55,6 +55,9 @@ class ControlActivity : AppCompatActivity() {
         stepper_delay_slider.setOnSeekBarChangeListener(seekBarListener)
         stepper_pos_slider.setOnSeekBarChangeListener(seekBarListener)
 
+        //disable user interaction
+        stepper_actual_pos_slider.setOnTouchListener { _, _ -> true }
+
         navigation.setOnNavigationItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.navigation_tennis -> {
@@ -102,10 +105,26 @@ class ControlActivity : AppCompatActivity() {
         finish()
     }
 
-    val responseSize = 2
+    val responseSize = 3
+    val MSG_SPEED = 0
+    val MSG_STEPPER = 1
 
-    fun onReceive(data: IntArray) {
-        Log.e("Receive", data.toString())
+    private fun onReceive(data: IntArray) = runOnUiThread {
+        if (data.size != responseSize)
+            throw RuntimeException("data size ${data.size} doesn't match $responseSize")
+
+        val type = data[0]
+        val content = data[1] + (data[2] shl 8)
+        when (type) {
+            MSG_SPEED -> {
+                speed_value.text = content.toString().leftPad(4)
+            }
+            MSG_STEPPER -> {
+                stepper_actual_pos_value.text = content.toString().leftPad(4)
+                stepper_actual_pos_slider.progress = content
+            }
+            else -> throw RuntimeException("unknown type $type")
+        }
     }
 
     override fun onStop() {
