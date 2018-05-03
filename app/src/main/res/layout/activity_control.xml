@@ -46,14 +46,232 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
+            android:visibility="visible">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <ImageView
+                    android:id="@+id/tennis_table"
+                    android:layout_width="match_parent"
+                    android:layout_height="300dp"
+                    android:contentDescription="@string/ping_pong_board"
+                    android:src="@drawable/ic_ping_pong" />
+
+                <ImageView
+                    android:id="@+id/tennis_ball"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_alignStart="@+id/tennis_table"
+                    android:layout_alignTop="@id/tennis_table"
+                    android:layout_marginStart="177dp"
+                    android:layout_marginTop="106dp"
+                    android:contentDescription="@string/ball"
+                    android:src="@drawable/ic_ball"
+                    android:visibility="invisible"/>
+
+            </RelativeLayout>
+
+            <TableLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="10dp">
+
+                <TableRow android:paddingTop="@dimen/slider_padding">
+
+                    <TextView android:text="Motor" />
+
+                    <TextView
+                        android:id="@+id/tennis_motor_value"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="right"
+                        android:paddingLeft="10dp"
+                        android:text="xxxx"
+                        android:fontFamily="monospace" />
+
+                    <SeekBar
+                        android:id="@+id/tennis_motor_slider"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="0.9"
+                        android:paddingLeft="10dp"
+                        android:max="255"
+                        android:thumbTint="@android:color/transparent" />
+                </TableRow>
+
+                <TableRow android:paddingTop="@dimen/slider_padding">
+
+                    <TextView android:text="Servo" />
+
+                    <TextView
+                        android:id="@+id/tennis_servo_value"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="right"
+                        android:paddingLeft="10dp"
+                        android:text="xxxx"
+                        android:fontFamily="monospace" />
+
+                    <SeekBar
+                        android:id="@+id/tennis_servo_slider"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="0.9"
+                        android:paddingLeft="10dp"
+                        android:max="270"
+                        android:thumbTint="@android:color/transparent" />
+                </TableRow>
+
+                <Button
+                    android:id="@+id/fire_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Fire"
+                    android:onClick="onFireButtonClicked"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/tennis_info_text" />
+
+            </TableLayout>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/view_calibrate"
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:visibility="gone">
 
-            <ImageView
-                android:id="@+id/table_image_view"
+            <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="300dp"
-                android:contentDescription="@string/ping_pong_board"
-                android:src="@drawable/ic_ping_pong" />
+                android:layout_height="wrap_content">
+
+                <ImageView
+                    android:id="@+id/calibrate_table"
+                    android:layout_width="200dp"
+                    android:layout_height="200dp"
+                    android:layout_centerHorizontal="true"
+                    android:contentDescription="@string/ping_pong_board"
+                    android:src="@drawable/ic_ping_pong" />
+
+                <Button
+                    android:id="@+id/calib_tl_button"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:layout_alignParentTop="true"
+                    android:layout_alignStart="@+id/calibrate_table"
+                    android:text="TL"
+                    android:onClick="onCalibButtonClicked" />
+
+                <Button
+                    android:id="@+id/calib_tr_button"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:layout_alignEnd="@+id/calibrate_table"
+                    android:layout_alignTop="@+id/calibrate_table"
+                    android:text="TR"
+                    android:onClick="onCalibButtonClicked" />
+
+                <Button
+                    android:id="@+id/calib_br_button"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:layout_alignBottom="@+id/calibrate_table"
+                    android:layout_alignEnd="@+id/calibrate_table"
+                    android:layout_marginBottom="40dp"
+                    android:text="BR"
+                    android:onClick="onCalibButtonClicked" />
+
+                <Button
+                    android:id="@+id/calib_bl_button"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:layout_alignBottom="@+id/calibrate_table"
+                    android:layout_alignStart="@+id/calibrate_table"
+                    android:layout_marginBottom="40dp"
+                    android:text="BL"
+                    android:onClick="onCalibButtonClicked" />
+
+            </RelativeLayout>
+
+            <TableLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="10dp">
+
+                <TableRow android:paddingTop="@dimen/slider_padding">
+
+                    <TextView android:text="Motor" />
+
+                    <TextView
+                        android:id="@+id/calibrate_motor_value"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="right"
+                        android:paddingLeft="10dp"
+                        android:text="xxxx"
+                        android:fontFamily="monospace" />
+
+                    <SeekBar
+                        android:id="@+id/calibrate_motor_slider"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="0.9"
+                        android:paddingLeft="10dp"
+                        android:max="255" />
+                </TableRow>
+
+                <TableRow android:paddingTop="@dimen/slider_padding">
+
+                    <TextView android:text="Servo" />
+
+                    <TextView
+                        android:id="@+id/calibrate_servo_value"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="right"
+                        android:paddingLeft="10dp"
+                        android:text="xxxx"
+                        android:fontFamily="monospace" />
+
+                    <SeekBar
+                        android:id="@+id/calibrate_servo_slider"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="0.9"
+                        android:paddingLeft="10dp"
+                        android:max="170" />
+                </TableRow>
+
+            </TableLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/calibrate_save_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Save"
+                    android:enabled="false"
+                    android:onClick="onCalibSaveButtonClicked" />
+
+                <Button
+                    android:id="@+id/calibrate_cancel_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Cancel"
+                    android:enabled="false"
+                    android:onClick="onCalibButtonClicked" />
+
+            </LinearLayout>
 
         </LinearLayout>
 
@@ -62,7 +280,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="10dp"
-            android:visibility="visible">
+            android:visibility="gone">
 
             <TableRow>
 
@@ -218,7 +436,7 @@
                     android:paddingLeft="10dp"
                     android:max="600"
                     android:progress="300"
-                    android:thumbTint="@android:color/transparent"/>
+                    android:thumbTint="@android:color/transparent" />
 
 
             </TableRow>

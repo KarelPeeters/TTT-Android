@@ -7,6 +7,12 @@
         android:title="@string/title_tennis" />
 
     <item
+        android:id="@+id/navigation_calibrate"
+        android:icon="@drawable/ic_settings_black_24dp"
+        android:title="@string/calibrate"
+        />
+
+    <item
         android:id="@+id/navigation_raw"
         android:icon="@drawable/ic_dashboard_black_24dp"
         android:title="@string/title_raw" />

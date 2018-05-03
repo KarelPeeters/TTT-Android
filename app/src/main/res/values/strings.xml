@@ -18,4 +18,6 @@
     <string name="title_tennis">Tennis</string>
     <string name="title_raw">Raw</string>
     <string name="placeholder">xxxx</string>
+    <string name="calibrate">Calibrate</string>
+    <string name="ball">ball</string>
 </resources>
