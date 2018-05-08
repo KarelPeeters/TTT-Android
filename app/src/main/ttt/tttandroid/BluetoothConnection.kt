@@ -39,9 +39,9 @@ class BluetoothConnection(
     private var readerThread: ReaderThread? = null
     private var writerThread: WriterThread? = null
 
-    private lateinit var socket: BluetoothSocket
-    private lateinit var input: InputStream
-    private lateinit var output: OutputStream
+    private var socket: BluetoothSocket? = null
+    private var input: InputStream? = null
+    private var output: OutputStream? = null
 
     private val writeQueue: BlockingQueue<Int> = LinkedBlockingQueue()
     private val readQueue: Queue<Int> = LinkedList<Int>()
@@ -119,14 +119,14 @@ class BluetoothConnection(
 
                 try {
                     socket = device.createRfcommSocketToServiceRecord(SERIAL_UUID)
-                    socket.connect()
+                    socket?.connect()
                 } catch (e: IOException) {
                     handleFail()
                     return
                 }
 
-                input = socket.inputStream
-                output = socket.outputStream
+                input = socket?.inputStream
+                output = socket?.outputStream
                 readerThread = ReaderThread().apply { start() }
                 writerThread = WriterThread().apply { start() }
 
@@ -140,7 +140,7 @@ class BluetoothConnection(
         override fun run() {
             try {
                 while (running) {
-                    readQueue.add(input.read())
+                    readQueue.add(input?.read())
                     if (readQueue.size >= responseSize) {
                         val response = IntArray(responseSize) { readQueue.remove() }
                         receiver(response)
@@ -159,7 +159,7 @@ class BluetoothConnection(
             try {
                 while (running) {
                     try {
-                        output.write(writeQueue.take())
+                        output?.write(writeQueue.take())
                     } catch (e: IOException) {
                         handleFail()
                     }
@@ -177,7 +177,7 @@ class BluetoothConnection(
         readerThread?.interrupt()
         writerThread?.interrupt()
 
-        socket.close()
+        socket?.close()
 
         try {
             context.unregisterReceiver(broadCastReceiver)
@@ -194,6 +194,8 @@ class BluetoothConnection(
     }
 
     fun write(data: IntArray) {
+        Log.d("Write target", (data[data.size - 2] + (data[data.size - 1] shl 8)).toString())
+        RuntimeException().printStackTrace()
         for (value in data) {
             write(value)
         }

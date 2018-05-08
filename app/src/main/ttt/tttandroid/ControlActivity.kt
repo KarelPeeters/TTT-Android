@@ -189,8 +189,6 @@ class ControlActivity : AppCompatActivity() {
         val type = data[0]
         val content = data[1] + (data[2] shl 8)
 
-        Log.e("Received", "$type: $content")
-
         when (type) {
             MSG_SPEED -> {
                 speed_value.text = content.toMonoString()
@@ -203,21 +201,21 @@ class ControlActivity : AppCompatActivity() {
                     fire_button.isEnabled = true
                 }
             }
-            else -> throw RuntimeException("unknown type $type")
+            else -> Unit//throw RuntimeException("unknown type $type")
         }
     }
 
-    var firing = false
     var targetStepperPos = state.stepperPos
     var direction = true
 
     fun onFireButtonClicked(view: View) {
         fire_button.isEnabled = false
-        if (direction) {
+        /*if (direction) {
             state.stepperPos += 200
         } else {
             state.stepperPos -= 200
-        }
+        }*/
+        state.stepperPos += 200
         direction = !direction
         targetStepperPos = state.stepperPos
         onStateChanged()
@@ -248,7 +246,6 @@ class ControlActivity : AppCompatActivity() {
         servo_slider.progress = state.servo
         stepper_delay_slider.progress = state.stepperDelay
         stepper_pos_slider.progress = state.stepperPos
-
     }
 
     private fun getKey(selected: CalibSelected, setting: CalibSetting) =
@@ -319,6 +316,10 @@ class ControlActivity : AppCompatActivity() {
 
     private val rawSeekBarListener = object : SeekBar.OnSeekBarChangeListener {
         override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
+            if(!fromUser) {
+                return
+            }
+
             when (seekBar) {
                 lm_slider -> state.lm = progress
                 rm_slider -> state.rm = progress

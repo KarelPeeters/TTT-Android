@@ -46,7 +46,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:visibility="visible">
+            android:visibility="gone">
 
             <RelativeLayout
                 android:layout_width="match_parent"
@@ -280,7 +280,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="10dp"
-            android:visibility="gone">
+            android:visibility="visible">
 
             <TableRow>
 
@@ -384,7 +384,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="0.9"
                     android:paddingLeft="10dp"
-                    android:max="2000"
+                    android:max="5000"
                     android:progress="500" />
 
 
@@ -434,7 +434,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="0.9"
                     android:paddingLeft="10dp"
-                    android:max="600"
+                    android:max="2000"
                     android:progress="300"
                     android:thumbTint="@android:color/transparent" />
 
@@ -452,7 +452,7 @@
 
             <TableRow android:paddingTop="@dimen/slider_padding">
 
-                <TextView android:text="Delta (µs)" />
+                <TextView android:text="Delta (ms)" />
 
                 <TextView
                     android:id="@+id/speed_value"
