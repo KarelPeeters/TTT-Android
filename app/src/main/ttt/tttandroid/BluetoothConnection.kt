@@ -194,8 +194,6 @@ class BluetoothConnection(
     }
 
     fun write(data: IntArray) {
-        Log.d("Write target", (data[data.size - 2] + (data[data.size - 1] shl 8)).toString())
-        RuntimeException().printStackTrace()
         for (value in data) {
             write(value)
         }

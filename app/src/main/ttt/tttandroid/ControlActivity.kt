@@ -13,23 +13,26 @@ import kotlinx.android.synthetic.main.activity_control.*
 import ttt.tttandroid.CalibSetting.MOTOR
 import ttt.tttandroid.CalibSetting.SERVO
 import ttt.tttandroid.Mode.*
+import kotlin.math.roundToInt
 
 data class State(
         var lm: Int,
         var rm: Int,
-        var servo: Int,
+        var servo_hor: Int,
+        var servo_ver: Int,
         var stepperDelay: Int,
-        var stepperPos: Int
+        var stepperPos: Double
 ) {
     fun toBytes(): IntArray {
         return intArrayOf(
                 lm and 0xff,
                 rm and 0xff,
-                servo and 0xff,
+                servo_hor and 0xff,
+                servo_ver and 0xff,
                 stepperDelay and 0xff,
                 (stepperDelay shr 8) and 0xff,
-                stepperPos and 0xff,
-                (stepperPos shr 8) and 0xff
+                stepperPos.roundToInt() and 0xff,
+                (stepperPos.roundToInt() shr 8) and 0xff
         )
     }
 }
@@ -49,7 +52,7 @@ private enum class CalibSetting {
 data class Point2D(val x: Float, val y: Float)
 
 class ControlActivity : AppCompatActivity() {
-    private val state: State = State(0, 0, 0, 0, 0)
+    private val state: State = State(0, 0, 0, 0, 0, .0)
     private lateinit var connection: BluetoothConnection
     private lateinit var prefs: SharedPreferences
     private var calibSelected: CalibSelected? = null
@@ -65,14 +68,16 @@ class ControlActivity : AppCompatActivity() {
         state.apply {
             lm = lm_slider.progress
             rm = rm_slider.progress
-            servo = servo_slider.progress
+            servo_hor = servo_hor_slider.progress
+            servo_ver = servo_ver_slider.progress
             stepperDelay = stepper_delay_slider.progress
-            stepperPos = stepper_pos_slider.progress
+            stepperPos = stepper_pos_slider.progress.toDouble()
         }
 
         lm_slider.setOnSeekBarChangeListener(rawSeekBarListener)
         rm_slider.setOnSeekBarChangeListener(rawSeekBarListener)
-        servo_slider.setOnSeekBarChangeListener(rawSeekBarListener)
+        servo_hor_slider.setOnSeekBarChangeListener(rawSeekBarListener)
+        servo_ver_slider.setOnSeekBarChangeListener(rawSeekBarListener)
         stepper_delay_slider.setOnSeekBarChangeListener(rawSeekBarListener)
         stepper_pos_slider.setOnSeekBarChangeListener(rawSeekBarListener)
 
@@ -134,7 +139,7 @@ class ControlActivity : AppCompatActivity() {
 
             state.lm = motor
             state.rm = motor
-            state.servo = servo
+            state.servo_hor = servo
             onStateChanged()
 
             true
@@ -191,7 +196,12 @@ class ControlActivity : AppCompatActivity() {
 
         when (type) {
             MSG_SPEED -> {
-                speed_value.text = content.toMonoString()
+                val deltaT = content.toDouble() / 1000.0
+                val deltaX = 0.034
+                val v = deltaX / deltaT
+
+                speed_value_ms.text = "%.2f".format(v)
+                speed_value_kmh.text = "%.2f".format(v * 3.6)
             }
             MSG_STEPPER -> {
                 stepper_actual_pos_value.text = content.toMonoString()
@@ -205,19 +215,13 @@ class ControlActivity : AppCompatActivity() {
         }
     }
 
-    var targetStepperPos = state.stepperPos
+    var targetStepperPos = state.stepperPos.roundToInt()
     var direction = true
 
     fun onFireButtonClicked(view: View) {
-        fire_button.isEnabled = false
-        /*if (direction) {
-            state.stepperPos += 200
-        } else {
-            state.stepperPos -= 200
-        }*/
-        state.stepperPos += 200
+        state.stepperPos += 200f / 3f
         direction = !direction
-        targetStepperPos = state.stepperPos
+        targetStepperPos = state.stepperPos.roundToInt()
         onStateChanged()
     }
 
@@ -237,15 +241,17 @@ class ControlActivity : AppCompatActivity() {
 
         lm_value.text = state.lm.toMonoString()
         rm_value.text = state.rm.toMonoString()
-        servo_value.text = state.servo.toMonoString()
+        servo_hor_value.text = state.servo_hor.toMonoString()
+        servo_ver_value.text = state.servo_ver.toMonoString()
         stepper_speed_value.text = state.stepperDelay.toMonoString()
-        stepper_pos_value.text = state.stepperPos.toMonoString()
+        stepper_pos_value.text = state.stepperPos.roundToInt().toMonoString()
 
         lm_slider.progress = state.lm
         rm_slider.progress = state.rm
-        servo_slider.progress = state.servo
+        servo_hor_slider.progress = state.servo_hor
+        servo_ver_slider.progress = state.servo_ver
         stepper_delay_slider.progress = state.stepperDelay
-        stepper_pos_slider.progress = state.stepperPos
+        stepper_pos_slider.progress = state.stepperPos.roundToInt()
     }
 
     private fun getKey(selected: CalibSelected, setting: CalibSetting) =
@@ -316,16 +322,17 @@ class ControlActivity : AppCompatActivity() {
 
     private val rawSeekBarListener = object : SeekBar.OnSeekBarChangeListener {
         override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
-            if(!fromUser) {
+            if (!fromUser) {
                 return
             }
 
             when (seekBar) {
                 lm_slider -> state.lm = progress
                 rm_slider -> state.rm = progress
-                servo_slider -> state.servo = progress
+                servo_hor_slider -> state.servo_hor = progress
+                servo_ver_slider -> state.servo_ver = progress
                 stepper_delay_slider -> state.stepperDelay = progress
-                stepper_pos_slider -> state.stepperPos = progress
+                stepper_pos_slider -> state.stepperPos = progress.toDouble()
             }
             onStateChanged()
         }
