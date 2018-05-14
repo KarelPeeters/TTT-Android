@@ -25,14 +25,29 @@ data class NamedDevice(val name: String, val device: BluetoothDevice) : Parcelab
 
 val SERIAL_UUID = UUID.fromString("00001101-0000-1000-8000-00805f9b34fb")
 
+interface IBluetoothConnection {
+    fun handleFail(message: String? = null)
+    fun destroy()
+    fun write(data: Int)
+    fun write(data: IntArray)
+}
+
+object MockBluetoothConnection : IBluetoothConnection {
+    override fun handleFail(message: String?) {}
+    override fun destroy() {}
+    override fun write(data: Int) {}
+    override fun write(data: IntArray) {}
+
+}
+
 class BluetoothConnection(
         private val context: Context,
         private val namedDevice: NamedDevice,
         private val receiver: Receiver,
         private val responseSize: Int,
         private val finishedCallBack: (failed: Boolean) -> Unit
-) {
-    val device = namedDevice.device
+) : IBluetoothConnection {
+    private val device = namedDevice.device
     private var running = true
 
     private val initThread = InitThread().apply { start() }
@@ -66,7 +81,7 @@ class BluetoothConnection(
         }
     }
 
-    fun handleFail(message: String? = null) {
+    override fun handleFail(message: String?) {
         if (message != null) {
             Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
         }
@@ -170,7 +185,7 @@ class BluetoothConnection(
         }
     }
 
-    fun destroy() {
+    override fun destroy() {
         running = false
 
         initThread.interrupt()
@@ -181,7 +196,7 @@ class BluetoothConnection(
 
         try {
             context.unregisterReceiver(broadCastReceiver)
-        } catch(e: IllegalArgumentException) {
+        } catch (e: IllegalArgumentException) {
             //receiver wasn't registered yet
         }
     }
@@ -189,11 +204,11 @@ class BluetoothConnection(
     /**
      * Write the lower 8 bits of data to the connection
      */
-    fun write(data: Int) {
+    override fun write(data: Int) {
         writeQueue.put(data)
     }
 
-    fun write(data: IntArray) {
+    override fun write(data: IntArray) {
         for (value in data) {
             write(value)
         }

@@ -7,6 +7,7 @@
     tools:context="ttt.tttandroid.ControlActivity">
 
     <LinearLayout
+        android:id="@+id/linearLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
@@ -42,14 +43,13 @@
         </LinearLayout>
 
         <!--training-->
-
         <TableLayout
             android:id="@+id/view_training"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:padding="10dp"
-            android:visibility="visible">
+            android:visibility="gone">
 
             <TextView
                 android:layout_width="wrap_content"
@@ -87,7 +87,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:paddingTop="@dimen/row_padding"
+
                 android:text="Settings"
                 android:textColor="@android:color/black"
                 android:textStyle="bold" />
@@ -101,6 +101,19 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:spinnerMode="dropdown" />
+
+            </TableRow>
+
+            <TableRow>
+
+                <TextView android:text="Vertical angle" />
+
+                <Spinner
+                    android:id="@+id/vertangle_spinner"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:spinnerMode="dropdown" />
+
 
             </TableRow>
 
@@ -159,7 +172,6 @@
 
 
         </TableLayout>
-
 
         <!--tennis-->
         <LinearLayout
@@ -267,7 +279,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:visibility="gone">
+            android:visibility="visible">
 
             <RelativeLayout
                 android:layout_width="match_parent"
@@ -328,6 +340,19 @@
 
                 <TableRow android:paddingTop="@dimen/row_padding">
 
+                    <TextView android:text="Vertical angle" />
+
+                    <TextView
+                        android:id="@+id/calibrate_vertical_angle_state"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="right"
+                        android:paddingLeft="10dp"
+                        android:text="xxxx" />
+                </TableRow>
+
+                <TableRow android:paddingTop="@dimen/row_padding">
+
                     <TextView android:text="Motor" />
 
                     <TextView
@@ -376,14 +401,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
-
-                <Button
-                    android:id="@+id/calibrate_save_button"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:enabled="false"
-                    android:onClick="onCalibSaveButtonClicked"
-                    android:text="Save" />
 
                 <Button
                     android:id="@+id/calibrate_cancel_button"
@@ -475,9 +492,9 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="0.9"
-                    android:progress="90"
                     android:max="170"
-                    android:paddingLeft="10dp" />
+                    android:paddingLeft="10dp"
+                    android:progress="90" />
             </TableRow>
 
             <TableRow android:paddingTop="@dimen/row_padding">
@@ -498,9 +515,9 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="0.9"
-                    android:progress="95"
                     android:max="100"
-                    android:paddingLeft="10dp" />
+                    android:paddingLeft="10dp"
+                    android:progress="95" />
             </TableRow>
 
             <TableRow android:paddingTop="@dimen/row_padding">
@@ -637,6 +654,7 @@
         android:id="@+id/navigation"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginTop="0dp"
         android:layout_marginEnd="0dp"
         android:layout_marginStart="0dp"
         android:background="?android:attr/windowBackground"

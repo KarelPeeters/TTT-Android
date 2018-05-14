@@ -48,27 +48,31 @@ class BluetoothPickerActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_bluetooth_picker)
 
-        btAdapter = BluetoothAdapter.getDefaultAdapter()
+        if (MOCK_BT) {
+            startActivity(Intent(this, ControlActivity::class.java))
+        } else {
+            btAdapter = BluetoothAdapter.getDefaultAdapter()
 
-        listAdapter = BluetoothDeviceAdapter(this)
-        devices_list.adapter = listAdapter
+            listAdapter = BluetoothDeviceAdapter(this)
+            devices_list.adapter = listAdapter
 
-        devices_list.setOnItemClickListener { list, view, pos, id ->
-            stopScan()
-            val namedDevice = listAdapter.getItem(pos)
-            val intent = Intent(this, ControlActivity::class.java).apply {
-                putExtra(Codes.BT_DEVICE_EXTRA, namedDevice)
+            devices_list.setOnItemClickListener { list, view, pos, id ->
+                stopScan()
+                val namedDevice = listAdapter.getItem(pos)
+                val intent = Intent(this, ControlActivity::class.java).apply {
+                    putExtra(Codes.BT_DEVICE_EXTRA, namedDevice)
+                }
+                startActivity(intent)
             }
-            startActivity(intent)
-        }
 
-        val filter = IntentFilter().apply {
-            addAction(BluetoothDevice.ACTION_FOUND)
-            addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED)
-        }
-        registerReceiver(broadCastReceiver, filter)
+            val filter = IntentFilter().apply {
+                addAction(BluetoothDevice.ACTION_FOUND)
+                addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED)
+            }
+            registerReceiver(broadCastReceiver, filter)
 
-        startScan()
+            startScan()
+        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

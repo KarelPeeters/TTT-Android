@@ -18,3 +18,6 @@ fun Context.showAsToast(text: String) {
 fun Context.showAsToast(resId: Int) {
     Toast.makeText(this, resId, Toast.LENGTH_SHORT).show()
 }
+
+//avoid "condition always true" warnings
+val MOCK_BT = "false".toBoolean()

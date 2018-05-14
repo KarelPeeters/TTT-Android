@@ -9,6 +9,7 @@ import android.util.Log
 import android.util.TypedValue
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.RadioButton
 import android.widget.SeekBar
@@ -57,7 +58,11 @@ private enum class CalibSetting {
     MOTOR, SERVO
 }
 
-private enum class Patterns(val targets: List<Point2D>? = null) {
+private enum class VertAngle(val servo: Int) {
+    LOW(80), MID(50), HIGH(0)
+}
+
+private enum class Pattern(val targets: List<Point2D>? = null) {
     LV_RV(listOf(Point2D(0f, 1f), Point2D(1f, 1f))),
     LA_RA(listOf(Point2D(0f, 0f), Point2D(1f, 0f))),
     LV_RA_RV_LA(listOf(Point2D(0f, 1f), Point2D(1f, 0f), Point2D(1f, 1f), Point2D(0f, 0f))),
@@ -73,15 +78,22 @@ private enum class Patterns(val targets: List<Point2D>? = null) {
     }
 }
 
-private enum class Preset {
-    Easy, Intermediate, Advanced, Random
+private enum class Preset(
+        val pattern: Pattern,
+        val delay: String,
+        val vertAngle: VertAngle
+) {
+    Easy(Pattern.LV_RV, "5", VertAngle.HIGH),
+    Intermediate(Pattern.LA_RA, "5", VertAngle.MID),
+    Advanced(Pattern.LV_RA_RV_LA, "1", VertAngle.LOW),
+    Random(Pattern.Random, "0", VertAngle.MID)
 }
 
 data class Point2D(val x: Float, val y: Float)
 
 class ControlActivity : AppCompatActivity() {
     private val state: State = State(0, 0, 0, 0, 0, .0)
-    private lateinit var connection: BluetoothConnection
+    private lateinit var connection: IBluetoothConnection
     private lateinit var prefs: SharedPreferences
     private var calibSelected: CalibSelected? = null
 
@@ -138,15 +150,50 @@ class ControlActivity : AppCompatActivity() {
             true
         }
 
-        val patternStrings = Patterns.values().map { it.toString().replace('_', ' ') }.toTypedArray()
+        val patternStrings = Pattern.values().map { it.toString().replace('_', ' ') }.toTypedArray()
         pattern_spinner.adapter = ArrayAdapter(this, R.layout.support_simple_spinner_dropdown_item, patternStrings)
+
+        val vertAngleStrings = VertAngle.values().map { it.toString() }.toTypedArray()
+        vertangle_spinner.adapter = ArrayAdapter(this, R.layout.support_simple_spinner_dropdown_item, vertAngleStrings)
+
+        vertangle_spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                calibrate_vertical_angle_state.text = "-"
+            }
+
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                val vertAngle = VertAngle.values()[position]
+                calibrate_vertical_angle_state.text = vertAngle.toString()
+                state.servo_ver = vertAngle.servo
+                onStateChanged()
+            }
+
+        }
 
         preset_radio_group.setOnCheckedChangeListener { group, checkedId ->
             val index = group.indexOfChild(group.findViewById<RadioButton>(checkedId))
             selectPreset(Preset.values()[index])
         }
 
+        val calibChangeListener = object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                savePrefs()
+            }
+
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {}
+
+        }
+
+        calibrate_servo_slider.setOnSeekBarChangeListener(calibChangeListener)
+        calibrate_motor_slider.setOnSeekBarChangeListener(calibChangeListener)
+
         changeMode(TRAINING)
+    }
+
+    private fun dumpPrefs() {
+        Log.e("Prefs", prefs.all.entries.joinToString { (key, value) -> "$key: $value" })
     }
 
     private fun updateStateForTarget(x: Float, y: Float) {
@@ -183,17 +230,21 @@ class ControlActivity : AppCompatActivity() {
     }
 
     private fun initConnection() {
-        val device = intent.getParcelableExtra<NamedDevice>(Codes.BT_DEVICE_EXTRA)
-        connectionStatusText.text = getString(R.string.connecting_to, device.name)
-        connecting_spinner.visibility = View.VISIBLE
-        connection = BluetoothConnection(this, device, ::onReceive, responseSize) { failed ->
-            if (failed) {
-                Log.e("ControlActivity", "failed")
-                finish()
-            } else runOnUiThread {
-                connectionStatusText.text = getString(R.string.connected_to, device.name)
-                connecting_spinner.visibility = View.INVISIBLE
-                onStateChanged()
+        connection = if (MOCK_BT) {
+            MockBluetoothConnection
+        } else {
+            val device = intent.getParcelableExtra<NamedDevice>(Codes.BT_DEVICE_EXTRA)
+            connectionStatusText.text = getString(R.string.connecting_to, device.name)
+            connecting_spinner.visibility = View.VISIBLE
+            BluetoothConnection(this, device, ::onReceive, responseSize) { failed ->
+                if (failed) {
+                    Log.e("ControlActivity", "failed")
+                    finish()
+                } else runOnUiThread {
+                    connectionStatusText.text = getString(R.string.connected_to, device.name)
+                    connecting_spinner.visibility = View.INVISIBLE
+                    onStateChanged()
+                }
             }
         }
     }
@@ -203,12 +254,9 @@ class ControlActivity : AppCompatActivity() {
     }
 
     private fun selectPreset(preset: Preset) {
-        pattern_spinner.setSelection(preset.ordinal)
-        ball_delay_edittext.text = SpannableStringBuilder(when(preset) {
-            Preset.Easy, Preset.Intermediate -> "5"
-            Preset.Advanced -> "1"
-            Preset.Random -> "0"
-        })
+        pattern_spinner.setSelection(preset.pattern.ordinal)
+        ball_delay_edittext.text = SpannableStringBuilder(preset.delay)
+        vertangle_spinner.setSelection(preset.vertAngle.ordinal)
     }
 
     fun onGoTrainingClicked(view: View) {
@@ -224,7 +272,7 @@ class ControlActivity : AppCompatActivity() {
         go_training_button.text = "Stop"
         training_progressbar.progress = 0
 
-        val pattern = Patterns.values()[pattern_spinner.selectedItemPosition]
+        val pattern = Pattern.values()[pattern_spinner.selectedItemPosition]
         val ballCount = ball_count_edittext.text.toString().toInt()
         val ballDelay = (ball_delay_edittext.text.toString().toDouble() * 1000).toInt()
 
@@ -348,8 +396,10 @@ class ControlActivity : AppCompatActivity() {
         stepper_pos_slider.progress = state.stepperPos.roundToInt()
     }
 
+    private fun currentVertAngleState() = VertAngle.values()[vertangle_spinner.selectedItemPosition]
+
     private fun getKey(selected: CalibSelected, setting: CalibSetting) =
-            "$selected:$setting".toLowerCase()
+            "${currentVertAngleState()}:$selected:$setting".toLowerCase()
 
     private fun getPref(selected: CalibSelected, setting: CalibSetting) =
             prefs.getInt(getKey(selected, setting), 0)
@@ -374,11 +424,9 @@ class ControlActivity : AppCompatActivity() {
             calibrate_motor_value.text = "xxxx"
             calibrate_servo_slider.progress = 0
             calibrate_servo_value.text = "xxxx"
-            calibrate_save_button.isEnabled = false
             calibrate_cancel_button.isEnabled = false
         } else {
             view.isEnabled = false
-            calibrate_save_button.isEnabled = true
             calibrate_cancel_button.isEnabled = true
 
             calibrate_motor_slider.progress = getPref(select, MOTOR)
@@ -405,7 +453,7 @@ class ControlActivity : AppCompatActivity() {
 
     }
 
-    fun onCalibSaveButtonClicked(view: View) {
+    private fun savePrefs() {
         val selected = calibSelected ?: return
 
         val edit = prefs.edit()
