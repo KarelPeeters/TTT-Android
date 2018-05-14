@@ -41,6 +41,127 @@
 
         </LinearLayout>
 
+        <!--training-->
+
+        <TableLayout
+            android:id="@+id/view_training"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="10dp"
+            android:visibility="visible">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Preset"
+                android:textColor="@android:color/black"
+                android:textStyle="bold" />
+
+            <RadioGroup
+                android:id="@+id/preset_radio_group"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <RadioButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Easy" />
+
+                <RadioButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Intermediate" />
+
+                <RadioButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Advanced" />
+
+                <RadioButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Random" />
+            </RadioGroup>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingTop="@dimen/row_padding"
+                android:text="Settings"
+                android:textColor="@android:color/black"
+                android:textStyle="bold" />
+
+            <TableRow android:paddingTop="@dimen/row_padding">
+
+                <TextView android:text="Pattern" />
+
+                <Spinner
+                    android:id="@+id/pattern_spinner"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:spinnerMode="dropdown" />
+
+            </TableRow>
+
+            <TableRow>
+
+                <TextView android:text="Ball count" />
+
+                <EditText
+                    android:id="@+id/ball_count_edittext"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:ems="6"
+                    android:gravity="right"
+                    android:inputType="number"
+                    android:text="6" />
+
+
+            </TableRow>
+
+            <TableRow>
+
+                <TextView android:text="Delay (s)" />
+
+                <EditText
+                    android:id="@+id/ball_delay_edittext"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:ems="6"
+                    android:gravity="right"
+                    android:inputType="numberDecimal"
+                    android:text="6.0" />
+
+
+            </TableRow>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingTop="@dimen/row_padding"
+                android:text="Run"
+                android:textColor="@android:color/black"
+                android:textStyle="bold" />
+
+            <Button
+                android:id="@+id/go_training_button"
+                android:onClick="onGoTrainingClicked"
+                android:text="Go" />
+
+            <ProgressBar
+                android:id="@+id/training_progressbar"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:max="100"
+                android:progress="0" />
+
+
+        </TableLayout>
+
+
+        <!--tennis-->
         <LinearLayout
             android:id="@+id/view_tennis"
             android:layout_width="match_parent"
@@ -69,7 +190,7 @@
                     android:layout_marginTop="106dp"
                     android:contentDescription="@string/ball"
                     android:src="@drawable/ic_ball"
-                    android:visibility="invisible"/>
+                    android:visibility="invisible" />
 
             </RelativeLayout>
 
@@ -78,7 +199,7 @@
                 android:layout_height="wrap_content"
                 android:padding="10dp">
 
-                <TableRow android:paddingTop="@dimen/slider_padding">
+                <TableRow android:paddingTop="@dimen/row_padding">
 
                     <TextView android:text="Motor" />
 
@@ -86,22 +207,22 @@
                         android:id="@+id/tennis_motor_value"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:fontFamily="monospace"
                         android:gravity="right"
                         android:paddingLeft="10dp"
-                        android:text="xxxx"
-                        android:fontFamily="monospace" />
+                        android:text="xxxx" />
 
                     <SeekBar
                         android:id="@+id/tennis_motor_slider"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_weight="0.9"
-                        android:paddingLeft="10dp"
                         android:max="255"
+                        android:paddingLeft="10dp"
                         android:thumbTint="@android:color/transparent" />
                 </TableRow>
 
-                <TableRow android:paddingTop="@dimen/slider_padding">
+                <TableRow android:paddingTop="@dimen/row_padding">
 
                     <TextView android:text="Servo" />
 
@@ -109,18 +230,18 @@
                         android:id="@+id/tennis_servo_value"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:fontFamily="monospace"
                         android:gravity="right"
                         android:paddingLeft="10dp"
-                        android:text="xxxx"
-                        android:fontFamily="monospace" />
+                        android:text="xxxx" />
 
                     <SeekBar
                         android:id="@+id/tennis_servo_slider"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_weight="0.9"
-                        android:paddingLeft="10dp"
                         android:max="270"
+                        android:paddingLeft="10dp"
                         android:thumbTint="@android:color/transparent" />
                 </TableRow>
 
@@ -128,23 +249,24 @@
                     android:id="@+id/fire_button"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Fire"
-                    android:onClick="onFireButtonClicked"/>
+                    android:onClick="onFireButtonClicked"
+                    android:text="Fire" />
 
                 <TextView
+                    android:id="@+id/tennis_info_text"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/tennis_info_text" />
+                    android:layout_height="wrap_content" />
 
             </TableLayout>
 
         </LinearLayout>
 
+        <!--calibrate-->
         <LinearLayout
             android:id="@+id/view_calibrate"
-            android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:orientation="vertical"
             android:visibility="gone">
 
             <RelativeLayout
@@ -165,8 +287,8 @@
                     android:layout_height="50dp"
                     android:layout_alignParentTop="true"
                     android:layout_alignStart="@+id/calibrate_table"
-                    android:text="TL"
-                    android:onClick="onCalibButtonClicked" />
+                    android:onClick="onCalibButtonClicked"
+                    android:text="TL" />
 
                 <Button
                     android:id="@+id/calib_tr_button"
@@ -174,8 +296,8 @@
                     android:layout_height="50dp"
                     android:layout_alignEnd="@+id/calibrate_table"
                     android:layout_alignTop="@+id/calibrate_table"
-                    android:text="TR"
-                    android:onClick="onCalibButtonClicked" />
+                    android:onClick="onCalibButtonClicked"
+                    android:text="TR" />
 
                 <Button
                     android:id="@+id/calib_br_button"
@@ -184,8 +306,8 @@
                     android:layout_alignBottom="@+id/calibrate_table"
                     android:layout_alignEnd="@+id/calibrate_table"
                     android:layout_marginBottom="40dp"
-                    android:text="BR"
-                    android:onClick="onCalibButtonClicked" />
+                    android:onClick="onCalibButtonClicked"
+                    android:text="BR" />
 
                 <Button
                     android:id="@+id/calib_bl_button"
@@ -194,8 +316,8 @@
                     android:layout_alignBottom="@+id/calibrate_table"
                     android:layout_alignStart="@+id/calibrate_table"
                     android:layout_marginBottom="40dp"
-                    android:text="BL"
-                    android:onClick="onCalibButtonClicked" />
+                    android:onClick="onCalibButtonClicked"
+                    android:text="BL" />
 
             </RelativeLayout>
 
@@ -204,7 +326,7 @@
                 android:layout_height="wrap_content"
                 android:padding="10dp">
 
-                <TableRow android:paddingTop="@dimen/slider_padding">
+                <TableRow android:paddingTop="@dimen/row_padding">
 
                     <TextView android:text="Motor" />
 
@@ -212,21 +334,21 @@
                         android:id="@+id/calibrate_motor_value"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:fontFamily="monospace"
                         android:gravity="right"
                         android:paddingLeft="10dp"
-                        android:text="xxxx"
-                        android:fontFamily="monospace" />
+                        android:text="xxxx" />
 
                     <SeekBar
                         android:id="@+id/calibrate_motor_slider"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_weight="0.9"
-                        android:paddingLeft="10dp"
-                        android:max="255" />
+                        android:max="255"
+                        android:paddingLeft="10dp" />
                 </TableRow>
 
-                <TableRow android:paddingTop="@dimen/slider_padding">
+                <TableRow android:paddingTop="@dimen/row_padding">
 
                     <TextView android:text="Servo" />
 
@@ -234,18 +356,18 @@
                         android:id="@+id/calibrate_servo_value"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:fontFamily="monospace"
                         android:gravity="right"
                         android:paddingLeft="10dp"
-                        android:text="xxxx"
-                        android:fontFamily="monospace" />
+                        android:text="xxxx" />
 
                     <SeekBar
                         android:id="@+id/calibrate_servo_slider"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_weight="0.9"
-                        android:paddingLeft="10dp"
-                        android:max="170" />
+                        android:max="170"
+                        android:paddingLeft="10dp" />
                 </TableRow>
 
             </TableLayout>
@@ -259,28 +381,29 @@
                     android:id="@+id/calibrate_save_button"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Save"
                     android:enabled="false"
-                    android:onClick="onCalibSaveButtonClicked" />
+                    android:onClick="onCalibSaveButtonClicked"
+                    android:text="Save" />
 
                 <Button
                     android:id="@+id/calibrate_cancel_button"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Cancel"
                     android:enabled="false"
-                    android:onClick="onCalibButtonClicked" />
+                    android:onClick="onCalibButtonClicked"
+                    android:text="Cancel" />
 
             </LinearLayout>
 
         </LinearLayout>
 
+        <!--raw-->
         <TableLayout
             android:id="@+id/view_raw"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="10dp"
-            android:visibility="visible">
+            android:visibility="gone">
 
             <TableRow>
 
@@ -290,7 +413,7 @@
                     android:textStyle="bold" />
             </TableRow>
 
-            <TableRow android:paddingTop="@dimen/slider_padding">
+            <TableRow android:paddingTop="@dimen/row_padding">
 
                 <TextView android:text="LM" />
 
@@ -298,21 +421,21 @@
                     android:id="@+id/lm_value"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:fontFamily="monospace"
                     android:gravity="right"
                     android:paddingLeft="10dp"
-                    android:text="xxxx"
-                    android:fontFamily="monospace" />
+                    android:text="xxxx" />
 
                 <SeekBar
                     android:id="@+id/lm_slider"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="0.9"
-                    android:paddingLeft="10dp"
-                    android:max="255" />
+                    android:max="255"
+                    android:paddingLeft="10dp" />
             </TableRow>
 
-            <TableRow android:paddingTop="@dimen/slider_padding">
+            <TableRow android:paddingTop="@dimen/row_padding">
 
                 <TextView android:text="RM" />
 
@@ -320,21 +443,21 @@
                     android:id="@+id/rm_value"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:fontFamily="monospace"
                     android:gravity="right"
                     android:paddingLeft="10dp"
-                    android:text="xxxx"
-                    android:fontFamily="monospace" />
+                    android:text="xxxx" />
 
                 <SeekBar
                     android:id="@+id/rm_slider"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="0.9"
-                    android:paddingLeft="10dp"
-                    android:max="255" />
+                    android:max="255"
+                    android:paddingLeft="10dp" />
             </TableRow>
 
-            <TableRow android:paddingTop="@dimen/slider_padding">
+            <TableRow android:paddingTop="@dimen/row_padding">
 
                 <TextView android:text="Hor" />
 
@@ -342,21 +465,22 @@
                     android:id="@+id/servo_hor_value"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:fontFamily="monospace"
                     android:gravity="right"
                     android:paddingLeft="10dp"
-                    android:text="xxxx"
-                    android:fontFamily="monospace" />
+                    android:text="xxxx" />
 
                 <SeekBar
                     android:id="@+id/servo_hor_slider"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="0.9"
-                    android:paddingLeft="10dp"
-                    android:max="170" />
+                    android:progress="90"
+                    android:max="170"
+                    android:paddingLeft="10dp" />
             </TableRow>
 
-            <TableRow android:paddingTop="@dimen/slider_padding">
+            <TableRow android:paddingTop="@dimen/row_padding">
 
                 <TextView android:text="Ver" />
 
@@ -364,21 +488,22 @@
                     android:id="@+id/servo_ver_value"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:fontFamily="monospace"
                     android:gravity="right"
                     android:paddingLeft="10dp"
-                    android:text="xxxx"
-                    android:fontFamily="monospace" />
+                    android:text="xxxx" />
 
                 <SeekBar
                     android:id="@+id/servo_ver_slider"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="0.9"
-                    android:paddingLeft="10dp"
-                    android:max="170" />
+                    android:progress="95"
+                    android:max="100"
+                    android:paddingLeft="10dp" />
             </TableRow>
 
-            <TableRow android:paddingTop="@dimen/slider_padding">
+            <TableRow android:paddingTop="@dimen/row_padding">
 
                 <TextView
                     android:text="Stepper"
@@ -387,7 +512,7 @@
 
             </TableRow>
 
-            <TableRow android:paddingTop="@dimen/slider_padding">
+            <TableRow android:paddingTop="@dimen/row_padding">
 
                 <TextView android:text="Delay (µs)" />
 
@@ -395,10 +520,10 @@
                     android:id="@+id/stepper_speed_value"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:fontFamily="monospace"
                     android:gravity="right"
                     android:paddingLeft="10dp"
-                    android:text="xxxx"
-                    android:fontFamily="monospace" />
+                    android:text="xxxx" />
 
                 <SeekBar
                     android:id="@+id/stepper_delay_slider"
@@ -412,7 +537,7 @@
 
             </TableRow>
 
-            <TableRow android:paddingTop="@dimen/slider_padding">
+            <TableRow android:paddingTop="@dimen/row_padding">
 
                 <TextView android:text="Position" />
 
@@ -420,10 +545,10 @@
                     android:id="@+id/stepper_pos_value"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:fontFamily="monospace"
                     android:gravity="right"
                     android:paddingLeft="10dp"
-                    android:text="xxxx"
-                    android:fontFamily="monospace" />
+                    android:text="xxxx" />
 
                 <SeekBar
                     android:id="@+id/stepper_pos_slider"
@@ -437,7 +562,7 @@
 
             </TableRow>
 
-            <TableRow android:paddingTop="@dimen/slider_padding">
+            <TableRow android:paddingTop="@dimen/row_padding">
 
                 <TextView android:text="Actual" />
 
@@ -445,10 +570,10 @@
                     android:id="@+id/stepper_actual_pos_value"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:fontFamily="monospace"
                     android:gravity="end"
                     android:paddingStart="10dp"
-                    android:text="@string/placeholder"
-                    android:fontFamily="monospace" />
+                    android:text="@string/placeholder" />
 
                 <SeekBar
                     android:id="@+id/stepper_actual_pos_slider"
@@ -463,7 +588,7 @@
 
             </TableRow>
 
-            <TableRow android:paddingTop="@dimen/slider_padding">
+            <TableRow android:paddingTop="@dimen/row_padding">
 
                 <TextView
                     android:text="Speed"
@@ -472,7 +597,7 @@
 
             </TableRow>
 
-            <TableRow android:paddingTop="@dimen/slider_padding">
+            <TableRow android:paddingTop="@dimen/row_padding">
 
                 <TextView android:text="m/s" />
 
@@ -480,15 +605,15 @@
                     android:id="@+id/speed_value_ms"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:fontFamily="monospace"
                     android:gravity="end"
                     android:paddingStart="10dp"
-                    android:text="@string/placeholder"
-                    android:fontFamily="monospace" />
+                    android:text="@string/placeholder" />
 
 
             </TableRow>
 
-            <TableRow android:paddingTop="@dimen/slider_padding">
+            <TableRow android:paddingTop="@dimen/row_padding">
 
                 <TextView android:text="km/h" />
 
@@ -496,10 +621,10 @@
                     android:id="@+id/speed_value_kmh"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:fontFamily="monospace"
                     android:gravity="end"
                     android:paddingStart="10dp"
-                    android:text="@string/placeholder"
-                    android:fontFamily="monospace" />
+                    android:text="@string/placeholder" />
 
 
             </TableRow>

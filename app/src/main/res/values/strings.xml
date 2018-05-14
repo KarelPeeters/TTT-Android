@@ -20,4 +20,5 @@
     <string name="placeholder">xxxx</string>
     <string name="calibrate">Calibrate</string>
     <string name="ball">ball</string>
+    <string name="title_training">Training</string>
 </resources>

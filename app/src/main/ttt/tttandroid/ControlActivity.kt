@@ -4,16 +4,24 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import android.text.SpannableStringBuilder
 import android.util.Log
 import android.util.TypedValue
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
+import android.widget.RadioButton
 import android.widget.SeekBar
 import kotlinx.android.synthetic.main.activity_control.*
 import ttt.tttandroid.CalibSetting.MOTOR
 import ttt.tttandroid.CalibSetting.SERVO
 import ttt.tttandroid.Mode.*
+import java.util.*
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 import kotlin.math.roundToInt
+
+val random = Random()
 
 data class State(
         var lm: Int,
@@ -38,7 +46,7 @@ data class State(
 }
 
 private enum class Mode {
-    TENNIS, CALIBRATE, RAW
+    TRAINING, TENNIS, CALIBRATE, RAW
 }
 
 private enum class CalibSelected {
@@ -49,6 +57,26 @@ private enum class CalibSetting {
     MOTOR, SERVO
 }
 
+private enum class Patterns(val targets: List<Point2D>? = null) {
+    LV_RV(listOf(Point2D(0f, 1f), Point2D(1f, 1f))),
+    LA_RA(listOf(Point2D(0f, 0f), Point2D(1f, 0f))),
+    LV_RA_RV_LA(listOf(Point2D(0f, 1f), Point2D(1f, 0f), Point2D(1f, 1f), Point2D(0f, 0f))),
+    Random;
+
+    fun target(index: Int): Point2D = if (targets == null) {
+        Point2D(
+                x = if (random.nextBoolean()) 1f else 0f,
+                y = if (random.nextBoolean()) 1f else 0f
+        )
+    } else {
+        targets[index % targets.size]
+    }
+}
+
+private enum class Preset {
+    Easy, Intermediate, Advanced, Random
+}
+
 data class Point2D(val x: Float, val y: Float)
 
 class ControlActivity : AppCompatActivity() {
@@ -57,7 +85,9 @@ class ControlActivity : AppCompatActivity() {
     private lateinit var prefs: SharedPreferences
     private var calibSelected: CalibSelected? = null
 
-    private var tennisTarget: Point2D? = null
+    var trainingExecutor = Executors.newSingleThreadScheduledExecutor()
+
+    private var target: Point2D? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -91,61 +121,65 @@ class ControlActivity : AppCompatActivity() {
 
         navigation.setOnNavigationItemSelectedListener { item ->
             when (item.itemId) {
-                R.id.navigation_tennis -> {
-                    changeMode(TENNIS)
-                    true
-                }
-                R.id.navigation_raw -> {
-                    changeMode(RAW)
-                    true
-                }
-                R.id.navigation_calibrate -> {
-                    changeMode(CALIBRATE)
-                    true
-                }
-                else -> false
+                R.id.navigation_training -> changeMode(TRAINING)
+                R.id.navigation_tennis -> changeMode(TENNIS)
+                R.id.navigation_raw -> changeMode(RAW)
+                R.id.navigation_calibrate -> changeMode(CALIBRATE)
+                else -> return@setOnNavigationItemSelectedListener false
             }
+            true
         }
 
         tennis_table.setOnTouchListener { v, event ->
             val x = (((event.x / v.width) - 0.1f) / 0.8f).clamp(0f, 1f)
             val y = ((event.y / v.height) / 0.77f).clamp(0f, 1f)
-
-            tennisTarget = Point2D(x, y)
-            tennis_info_text.text = tennisTarget.toString()
-
-            val params = tennis_ball.layoutParams as ViewGroup.MarginLayoutParams
-            params.leftMargin = dpToInt(32 + (322 - 32) * x - 10)
-            params.topMargin = dpToInt(-10 + (222 - -10) * y)
-            tennis_ball.visibility = View.VISIBLE
-            tennis_ball.requestLayout()
-
-            val tl_motor = getPref(CalibSelected.TL, MOTOR).toFloat()
-            val tr_motor = getPref(CalibSelected.TR, MOTOR).toFloat()
-            val bl_motor = getPref(CalibSelected.BL, MOTOR).toFloat()
-            val br_motor = getPref(CalibSelected.BR, MOTOR).toFloat()
-            val motor = (tl_motor * (1 - x) * (1 - y) + tr_motor * x * (1 - y) + bl_motor * (1 - x) * y + br_motor * x * y).toInt()
-
-            val tl_servo = getPref(CalibSelected.TL, SERVO).toFloat()
-            val tr_servo = getPref(CalibSelected.TR, SERVO).toFloat()
-            val bl_servo = getPref(CalibSelected.BL, SERVO).toFloat()
-            val br_servo = getPref(CalibSelected.BR, SERVO).toFloat()
-            val servo = (tl_servo * (1 - x) * (1 - y) + tr_servo * x * (1 - y) + bl_servo * (1 - x) * y + br_servo * x * y).toInt()
-
-            tennis_motor_slider.progress = motor
-            tennis_motor_value.text = motor.toMonoString()
-            tennis_servo_slider.progress = servo
-            tennis_servo_value.text = servo.toMonoString()
-
-            state.lm = motor
-            state.rm = motor
-            state.servo_hor = servo
-            onStateChanged()
+            updateStateForTarget(x, y)
 
             true
         }
 
-        changeMode(TENNIS)
+        val patternStrings = Patterns.values().map { it.toString().replace('_', ' ') }.toTypedArray()
+        pattern_spinner.adapter = ArrayAdapter(this, R.layout.support_simple_spinner_dropdown_item, patternStrings)
+
+        preset_radio_group.setOnCheckedChangeListener { group, checkedId ->
+            val index = group.indexOfChild(group.findViewById<RadioButton>(checkedId))
+            selectPreset(Preset.values()[index])
+        }
+
+        changeMode(TRAINING)
+    }
+
+    private fun updateStateForTarget(x: Float, y: Float) {
+        target = Point2D(x, y)
+        tennis_info_text.text = target.toString()
+
+        val params = tennis_ball.layoutParams as ViewGroup.MarginLayoutParams
+        params.leftMargin = dpToInt(32 + (322 - 32) * x - 10)
+        params.topMargin = dpToInt(-10 + (222 - -10) * y)
+        tennis_ball.visibility = View.VISIBLE
+        tennis_ball.requestLayout()
+
+        val tl_motor = getPref(CalibSelected.TL, MOTOR).toFloat()
+        val tr_motor = getPref(CalibSelected.TR, MOTOR).toFloat()
+        val bl_motor = getPref(CalibSelected.BL, MOTOR).toFloat()
+        val br_motor = getPref(CalibSelected.BR, MOTOR).toFloat()
+        val motor = (tl_motor * (1 - x) * (1 - y) + tr_motor * x * (1 - y) + bl_motor * (1 - x) * y + br_motor * x * y).toInt()
+
+        val tl_servo = getPref(CalibSelected.TL, SERVO).toFloat()
+        val tr_servo = getPref(CalibSelected.TR, SERVO).toFloat()
+        val bl_servo = getPref(CalibSelected.BL, SERVO).toFloat()
+        val br_servo = getPref(CalibSelected.BR, SERVO).toFloat()
+        val servo = (tl_servo * (1 - x) * (1 - y) + tr_servo * x * (1 - y) + bl_servo * (1 - x) * y + br_servo * x * y).toInt()
+
+        tennis_motor_slider.progress = motor
+        tennis_motor_value.text = motor.toMonoString()
+        tennis_servo_slider.progress = servo
+        tennis_servo_value.text = servo.toMonoString()
+
+        state.lm = motor
+        state.rm = motor
+        state.servo_hor = servo
+        onStateChanged()
     }
 
     private fun initConnection() {
@@ -164,13 +198,71 @@ class ControlActivity : AppCompatActivity() {
         }
     }
 
-    private fun changeMode(mode: Mode) {
-        val (tennisVis, calibVis, rawVis) = when (mode) {
-            TENNIS -> listOf(View.VISIBLE, View.GONE, View.GONE)
-            CALIBRATE -> listOf(View.GONE, View.VISIBLE, View.GONE)
-            RAW -> listOf(View.GONE, View.GONE, View.VISIBLE)
+    private fun unSelectPreset() {
+        preset_radio_group.clearCheck()
+    }
+
+    private fun selectPreset(preset: Preset) {
+        pattern_spinner.setSelection(preset.ordinal)
+        ball_delay_edittext.text = SpannableStringBuilder(when(preset) {
+            Preset.Easy, Preset.Intermediate -> "5"
+            Preset.Advanced -> "1"
+            Preset.Random -> "0"
+        })
+    }
+
+    fun onGoTrainingClicked(view: View) {
+        if (go_training_button.text == "Stop") {
+            training_progressbar.progress = 0
+            trainingExecutor.shutdownNow()
+            trainingExecutor = Executors.newSingleThreadScheduledExecutor()
+            trainingDone()
+            return
         }
 
+        navigation.visibility = View.INVISIBLE
+        go_training_button.text = "Stop"
+        training_progressbar.progress = 0
+
+        val pattern = Patterns.values()[pattern_spinner.selectedItemPosition]
+        val ballCount = ball_count_edittext.text.toString().toInt()
+        val ballDelay = (ball_delay_edittext.text.toString().toDouble() * 1000).toInt()
+
+        var time = 0L
+
+        repeat(ballCount) { i ->
+            time += ballDelay.takeUnless { it == 0 } ?: random.nextInt(6000) + 1000
+            val target = pattern.target(i)
+
+            trainingExecutor.schedule({
+                Log.e("Index", "$i")
+                runOnUiThread {
+                    updateStateForTarget(target.x, target.y)
+                    onFireButtonClicked(fire_button)
+                    training_progressbar.progress = (100f / ballCount * (i + 1)).toInt()
+
+                    if (i == ballCount - 1) {
+                        trainingDone()
+                    }
+                }
+            }, time, TimeUnit.MILLISECONDS)
+        }
+    }
+
+    fun trainingDone() {
+        navigation.visibility = View.VISIBLE
+        go_training_button.text = "Go"
+    }
+
+    private fun changeMode(mode: Mode) {
+        val (trainingVis, tennisVis, calibVis, rawVis) = when (mode) {
+            TRAINING -> listOf(View.VISIBLE, View.GONE, View.GONE, View.GONE)
+            TENNIS -> listOf(View.GONE, View.VISIBLE, View.GONE, View.GONE)
+            CALIBRATE -> listOf(View.GONE, View.GONE, View.VISIBLE, View.GONE)
+            RAW -> listOf(View.GONE, View.GONE, View.GONE, View.VISIBLE)
+        }
+
+        view_training.visibility = trainingVis
         view_tennis.visibility = tennisVis
         view_calibrate.visibility = calibVis
         view_raw.visibility = rawVis
@@ -238,6 +330,8 @@ class ControlActivity : AppCompatActivity() {
     fun onStateChanged() {
         val data = state.toBytes()
         connection.write(data)
+
+        Log.e("Written", state.toString())
 
         lm_value.text = state.lm.toMonoString()
         rm_value.text = state.rm.toMonoString()

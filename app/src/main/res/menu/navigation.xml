@@ -2,6 +2,11 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
+        android:id="@+id/navigation_training"
+        android:icon="@drawable/ic_list_black_24dp"
+        android:title="@string/title_training" />
+
+    <item
         android:id="@+id/navigation_tennis"
         android:icon="@drawable/ic_home_black_24dp"
         android:title="@string/title_tennis" />
@@ -9,8 +14,7 @@
     <item
         android:id="@+id/navigation_calibrate"
         android:icon="@drawable/ic_settings_black_24dp"
-        android:title="@string/calibrate"
-        />
+        android:title="@string/calibrate" />
 
     <item
         android:id="@+id/navigation_raw"
